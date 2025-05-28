@@ -4,7 +4,7 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: 'Georgia', 'Times New Roman', Times, serif;
-  background: #faf9f6;
+  background: #fdf6ee; /* Cream */
   color: #222;
   box-sizing: border-box;
   overflow-x: hidden;
@@ -14,6 +14,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #fdf6ee; /* Cream */
 }
 
 #root {
@@ -29,18 +30,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-  color: #1a8917;
+  color: #967969;
   text-decoration: none;
   transition: color 0.2s;
 }
 a:hover {
-  color: #166d13;
+  color: #7c614f;
   text-decoration: underline;
 }
 
 button, .button {
-  background: #222;
-  color: #fff;
+  background: #e7d8c9; /* Light brown accent */
+  color: #222;
   border: none;
   border-radius: 999px;
   padding: 0.75em 2em;
@@ -49,23 +50,28 @@ button, .button {
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
   margin: 0.25em;
+  box-shadow: 0 2px 8px rgba(150,121,105,0.06);
 }
 button:hover, .button:hover {
-  background: #444;
+  background: #967969;
+  color: #fff;
 }
 
 .container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 2em 1em;
+  background: #fffef8; /* Slightly lighter cream */
+  border-radius: 1.5em;
+  box-shadow: 0 2px 16px rgba(150,121,105,0.04);
 }
 
 .navbar {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  background: #faf9f6;
-  border-bottom: 1px solid #ececec;
+  background: #fffef8; /* Cream */
+  border-bottom: 1px solid #e6e6d6;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -79,7 +85,7 @@ button:hover, .button:hover {
   font-family: 'Merriweather', serif;
   font-size: 2rem;
   font-weight: 900;
-  color: #222;
+  color: #967969;
   letter-spacing: -2px;
 }
 .navbar-links {
@@ -97,25 +103,29 @@ button:hover, .button:hover {
   transition: background 0.2s, color 0.2s;
 }
 .navbar-links a.button, .navbar-links .button {
-  background: #222;
+  background: #967969;
   color: #fff;
 }
 .navbar-links a.button:hover, .navbar-links .button:hover {
-  background: #444;
+  background: #e7d8c9;
+  color: #222;
 }
 .navbar-links a:hover {
-  background: #f2f2f2;
+  background: #f5ede6;
 }
 
 .hero {
   text-align: center;
   padding: 6em 1em 4em 1em;
+  background: #f5ede6; /* Very light brown */
+  border-radius: 0 0 2em 2em;
 }
 .hero-title {
   font-size: 3rem;
   font-family: 'Merriweather', serif;
   font-weight: 900;
   margin-bottom: 0.5em;
+  color: #967969;
 }
 .hero-subtitle {
   font-size: 1.5rem;
@@ -125,6 +135,12 @@ button:hover, .button:hover {
 .hero .button {
   font-size: 1.2rem;
   padding: 1em 2.5em;
+  background: #967969;
+  color: #fff;
+}
+.hero .button:hover {
+  background: #e7d8c9;
+  color: #222;
 }
 
 .card-list {
@@ -135,9 +151,9 @@ button:hover, .button:hover {
   margin-top: 3em;
 }
 .card {
-  background: #fff;
+  background: #fffef8;
   border-radius: 1.5em;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 16px rgba(150,121,105,0.08);
   padding: 2em;
   max-width: 350px;
   flex: 1 1 300px;
@@ -145,14 +161,17 @@ button:hover, .button:hover {
   flex-direction: column;
   justify-content: space-between;
   transition: box-shadow 0.2s;
+  border: 1px solid #e6e6d6;
 }
 .card:hover {
-  box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+  box-shadow: 0 4px 32px rgba(150,121,105,0.12);
+  border-color: #e7d8c9;
 }
 .card-title {
   font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 0.5em;
+  color: #967969;
 }
 .card-meta {
   color: #888;
@@ -176,12 +195,12 @@ button:hover, .button:hover {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: #fffef8;
 }
 .auth-form {
   background: #fff;
   border-radius: 1em;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 16px rgba(150,121,105,0.08);
   padding: 2.5em 2em 2em 2em;
   max-width: 350px;
   width: 100%;
@@ -195,6 +214,7 @@ button:hover, .button:hover {
   font-weight: 700;
   margin-bottom: 0.2em;
   text-align: center;
+  color: #967969;
 }
 .auth-form p {
   color: #888;
@@ -210,15 +230,15 @@ button:hover, .button:hover {
 .auth-form input[type="email"], .auth-form input[type="text"], .auth-form input[type="password"] {
   width: 100%;
   padding: 0.7em 1em;
-  border: 1px solid #ddd;
+  border: 1px solid #e7d8c9;
   border-radius: 0.5em;
   font-size: 1em;
   margin-bottom: 0.7em;
-  background: #fafafa;
+  background: #fdf6ee;
   transition: border 0.2s;
 }
 .auth-form input:focus {
-  border: 1.5px solid #222;
+  border: 1.5px solid #967969;
   outline: none;
 }
 .auth-form .button, .auth-form button {
@@ -226,7 +246,7 @@ button:hover, .button:hover {
   padding: 0.9em 0;
   font-size: 1.1em;
   border-radius: 0.7em;
-  background: #222;
+  background: #967969;
   color: #fff;
   border: none;
   font-weight: 600;
@@ -235,7 +255,8 @@ button:hover, .button:hover {
   transition: background 0.2s;
 }
 .auth-form .button:hover, .auth-form button:hover {
-  background: #444;
+  background: #e7d8c9;
+  color: #222;
 }
 .auth-form .google-btn {
   background: #fff;
@@ -262,4 +283,20 @@ button:hover, .button:hover {
   font-size: 0.95em;
   text-align: center;
   margin-top: 1.5em;
+}
+
+/* User initial circle dropdown */
+.user-initial-dropdown {
+  background: #967969 !important;
+  color: #fff !important;
+}
+
+/* Blog detail page */
+.container h1 {
+  color: #967969;
+}
+
+/* Dashboard and other pages */
+.container {
+  background: #fffef8;
 } 
