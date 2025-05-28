@@ -157,7 +157,7 @@ function App() {
   return (
     <Router>
       <Navbar userInitial={userInitial} setUserInitial={setUserInitial} dropdownOpen={dropdownOpen} setDropdownOpen={setDropdownOpen} />
-      <Routes>
+          <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/explore" element={<ExplorePage />} />
         {userInitial && <Route path="/write" element={<WritePage />} />}
@@ -167,7 +167,7 @@ function App() {
         <Route path="/login" element={<LoginPage setUserInitial={setUserInitial} />} />
         <Route path="/get-started" element={<GetStartedPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
+                </Routes>
     </Router>
   );
 }
@@ -404,7 +404,7 @@ function BlogDetailPage() {
   if (!blog) return null;
 
   return (
-    <div className="container" style={{ maxWidth: 700 }}>
+    <div className="container blog-detail">
       <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5em' }}>{blog.title}</h1>
       <div style={{ color: '#888', marginBottom: '2em' }}>
         by <b>{blog.author}</b> · {new Date(blog.created_at).toLocaleDateString()}
@@ -538,4 +538,4 @@ function EditBlogPage() {
   );
 }
 
-export default App; 
+export default App;
