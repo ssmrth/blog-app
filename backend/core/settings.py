@@ -74,7 +74,7 @@ TEMPLATES = [
 
 # Configure CORS
 CORS_ALLOWED_ORIGINS = [
-    os.environ.get('FRONTEND_URL', 'https://your-frontend-service-name.onrender.com'),
+    os.environ.get('FRONTEND_URL', 'https://blogverse-ttsq.onrender.com'),
 ]
 
 # Configure REST Framework with JWT
