@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-@u4&yy*8w^kfa*i2i7_1a_j(xmi)t#ly57z5n7x-a6j^jw2)6h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = ['.onrender.com', 'https://blogverse-ttsq.onrender.com']
 
 
 # Application definition
@@ -74,7 +74,8 @@ TEMPLATES = [
 
 # Configure CORS
 CORS_ALLOWED_ORIGINS = [
-    os.environ.get('FRONTEND_URL', 'https://blogverse-ttsq.onrender.com'),
+    'https://blogverse-ttsq.onrender.com',
+    'http://localhost:5173',
 ]
 
 # Configure REST Framework with JWT

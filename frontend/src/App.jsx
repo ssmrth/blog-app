@@ -9,7 +9,7 @@ import { ToastProvider, useToast } from './components/ToastContext';
 import ConfirmDialog from './components/ConfirmDialog';
 
 // Axios instance for API calls
-const api = axios.create({ baseURL: 'http://localhost:8000' });
+const api = axios.create({ baseURL: 'https://blog-app-y4v5.onrender.com' });
 
 // Add interceptor for token refresh
 api.interceptors.response.use(
@@ -22,7 +22,7 @@ api.interceptors.response.use(
       const refresh = localStorage.getItem('refresh');
       if (refresh) {
         try {
-          const res = await axios.post('http://localhost:8000/api/token/refresh/', { refresh });
+          const res = await axios.post('https://blog-app-y4v5.onrender.com/api/token/refresh/', { refresh });
           localStorage.setItem('access', res.data.access);
           // Update the Authorization header and retry the original request
           originalRequest.headers['Authorization'] = `Bearer ${res.data.access}`;
