@@ -1,8 +1,13 @@
+// App.jsx - Main React application for BlogVerse
+// All major components and logic are defined here.
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import './index.css';
+import { ToastProvider, useToast } from './components/ToastContext';
 
+// Axios instance for API calls
 const api = axios.create({ baseURL: 'http://localhost:8000' });
 
 // Add interceptor for token refresh
@@ -40,58 +45,11 @@ api.interceptors.response.use(
   }
 );
 
-function Home() {
-  return (
-    <>
-      <section className="hero">
-        <h1 className="hero-title">Stay curious.</h1>
-        <p className="hero-subtitle">Discover stories, thinking, and expertise from writers on any topic.</p>
-        <Link to="/explore" className="button">Start reading</Link>
-      </section>
-      <section className="container">
-        <div className="card-list">
-          <div className="card">
-            <div>
-              <div className="card-title">How to Write a Great Blog Post</div>
-              <div className="card-meta">by Jane Doe · May 2024</div>
-              <div className="card-content">Learn the secrets to writing engaging, thoughtful, and well-structured blog posts that attract readers and keep them coming back for more.</div>
-            </div>
-            <div className="card-footer">
-              <span>5 min read</span>
-              <a href="#" className="button" style={{padding: '0.5em 1.5em', fontSize: '0.95em'}}>Read</a>
-            </div>
-          </div>
-          <div className="card">
-            <div>
-              <div className="card-title">The Art of Storytelling</div>
-              <div className="card-meta">by John Smith · May 2024</div>
-              <div className="card-content">Storytelling is at the heart of every great blog. Discover how to craft stories that resonate and inspire your audience.</div>
-            </div>
-            <div className="card-footer">
-              <span>7 min read</span>
-              <a href="#" className="button" style={{padding: '0.5em 1.5em', fontSize: '0.95em'}}>Read</a>
-            </div>
-          </div>
-          <div className="card">
-            <div>
-              <div className="card-title">Building Your Audience</div>
-              <div className="card-meta">by Alex Lee · May 2024</div>
-              <div className="card-content">Tips and strategies for growing your readership and building a loyal community around your blog.</div>
-            </div>
-            <div className="card-footer">
-              <span>4 min read</span>
-              <a href="#" className="button" style={{padding: '0.5em 1.5em', fontSize: '0.95em'}}>Read</a>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-}
-
+// --- Navbar Component ---
 function Navbar({ userInitial, setUserInitial, dropdownOpen, setDropdownOpen }) {
   const navigate = useNavigate();
 
+  // Logout handler
   const handleLogout = () => {
     localStorage.removeItem('access');
     localStorage.removeItem('refresh');
@@ -101,6 +59,7 @@ function Navbar({ userInitial, setUserInitial, dropdownOpen, setDropdownOpen }) 
     navigate('/');
   };
 
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClick = (e) => {
       if (!e.target.closest('.user-initial-dropdown')) setDropdownOpen(false);
@@ -113,8 +72,8 @@ function Navbar({ userInitial, setUserInitial, dropdownOpen, setDropdownOpen }) 
     <nav className="navbar">
       <Link to="/" className="navbar-logo" style={{ textDecoration: 'none', cursor: 'pointer' }}>BlogVerse</Link>
       <div className="navbar-links">
-        <Link to="/explore" className="">Explore</Link>
-        {userInitial && <Link to="/write" className="">Write</Link>}
+        <Link to="/explore">Explore</Link>
+        {userInitial && <Link to="/write">Write</Link>}
         {userInitial ? (
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '1em' }}>
             <div
@@ -134,7 +93,7 @@ function Navbar({ userInitial, setUserInitial, dropdownOpen, setDropdownOpen }) 
           </div>
         ) : (
           <>
-            <Link to="/login" className="">Sign in</Link>
+            <Link to="/login">Sign in</Link>
             <Link to="/get-started" className="button">Get started</Link>
           </>
         )}
@@ -143,63 +102,71 @@ function Navbar({ userInitial, setUserInitial, dropdownOpen, setDropdownOpen }) 
   );
 }
 
-function App() {
-  const [userInitial, setUserInitial] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+// --- Home Page: Shows latest blogs ---
+function Home() {
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch latest blogs on mount
   useEffect(() => {
-    // On mount, check if token exists
-    const token = localStorage.getItem('access');
-    const initial = localStorage.getItem('userInitial');
-    if (token && initial) setUserInitial(initial);
+    api.get('/api/blogs/?page=1')
+      .then(res => {
+        setBlogs(res.data.results ? res.data.results.slice(0, 3) : res.data.slice(0, 3));
+      })
+      .catch(() => setBlogs([]))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <Router>
-      <Navbar userInitial={userInitial} setUserInitial={setUserInitial} dropdownOpen={dropdownOpen} setDropdownOpen={setDropdownOpen} />
-          <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/explore" element={<ExplorePage />} />
-        {userInitial && <Route path="/write" element={<WritePage />} />}
-        <Route path="/blog/:id" element={<BlogDetailPage />} />
-        {userInitial && <Route path="/my-blogs" element={<MyBlogsPage />} />}
-        {userInitial && <Route path="/edit-blog/:id" element={<EditBlogPage />} />}
-        <Route path="/login" element={<LoginPage setUserInitial={setUserInitial} />} />
-        <Route path="/get-started" element={<GetStartedPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-                </Routes>
-    </Router>
+    <>
+      <section className="hero">
+        <h1 className="hero-title">Stay curious.</h1>
+        <p className="hero-subtitle">Discover stories, thinking, and expertise from writers on any topic.</p>
+        <Link to="/explore" className="button">Start reading</Link>
+      </section>
+      <section className="container">
+        <h2 style={{marginBottom: '1em'}}>Latest Blogs</h2>
+        {loading ? <p>Loading...</p> : blogs.length === 0 ? <p>No blogs found.</p> : (
+          <div className="card-list">
+            {blogs.map(blog => (
+              <div className="card" key={blog.id}>
+                <div>
+                  <div className="card-title">{blog.title}</div>
+                  <div className="card-meta">by {blog.author.split('@')[0]} · {new Date(blog.created_at).toLocaleDateString()}</div>
+                  <div className="card-content">{blog.content.slice(0, 120)}{blog.content.length > 120 ? '...' : ''}</div>
+                </div>
+                <div className="card-footer">
+                  <span>{Math.max(1, Math.round((blog.content.length || 100) / 250))} min read</span>
+                  <Link to={`/blog/${blog.id}`} className="button" style={{padding: '0.5em 1.5em', fontSize: '0.95em'}}>Read</Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </>
   );
 }
 
-function Dashboard() {
-  return (
-    <div className="container">
-      <h1>Welcome! You are logged in.</h1>
-      <p>This is your dashboard page.</p>
-    </div>
-  );
-}
-
+// --- Login Page ---
 function LoginPage({ setUserInitial }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const showToast = useToast();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await api.post('/api/login/', { username: email, password });
-      // Save tokens
       localStorage.setItem('access', res.data.access);
       localStorage.setItem('refresh', res.data.refresh);
-      // Save user initial (first letter of email, uppercase)
       const initial = email.trim()[0].toUpperCase();
       localStorage.setItem('userInitial', initial);
       setUserInitial(initial);
-      alert('Login successful!');
+      showToast('Login successful!', 'success');
       navigate('/dashboard');
     } catch (err) {
       let msg = 'Unknown error';
@@ -212,7 +179,7 @@ function LoginPage({ setUserInitial }) {
           msg = JSON.stringify(err.response.data);
         }
       }
-      alert('Login failed: ' + msg);
+      showToast('Login failed: ' + msg, 'error');
     } finally {
       setLoading(false);
     }
@@ -229,28 +196,29 @@ function LoginPage({ setUserInitial }) {
         <input type="password" id="password" placeholder="Type your password" value={password} onChange={e => setPassword(e.target.value)} required />
         <button type="submit" className="button" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</button>
         <div className="terms">
-          By clicking "Sign in" you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy policy</a>.
+          By clicking "Sign in" you agree to our <Link to="/terms-of-use">Terms of Use</Link>.
         </div>
       </form>
     </div>
   );
 }
 
+// --- Registration Page ---
 function GetStartedPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const showToast = useToast();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       await api.post('/api/signup/', { email, password });
-      alert('Registration successful! You can now sign in.');
-      navigate('/login');
+      showToast('Registration successful!', 'success');
     } catch (err) {
-      alert('Registration failed: ' + (err.response?.data?.detail || JSON.stringify(err.response?.data) || 'Unknown error'));
+      showToast('Registration failed: ' + (err.response?.data?.detail || JSON.stringify(err.response?.data) || 'Unknown error'), 'error');
     } finally {
       setLoading(false);
     }
@@ -267,13 +235,14 @@ function GetStartedPage() {
         <input type="password" id="new-password" placeholder="Create a password" value={password} onChange={e => setPassword(e.target.value)} required />
         <button type="submit" className="button" disabled={loading}>{loading ? 'Registering...' : 'Register'}</button>
         <div className="terms">
-          By clicking "Register" you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy policy</a>.
+          By clicking "Register" you agree to our <Link to="/terms-of-use">Terms of Use</Link>.
         </div>
       </form>
     </div>
   );
 }
 
+// --- Explore Page: Paginated blog list ---
 function ExplorePage() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -284,7 +253,7 @@ function ExplorePage() {
 
   useEffect(() => {
     setLoading(true);
-    api.get(`/api/blogs/?page=${page}`)
+    api.get(`/api/blogs/?page=${page}&page_size=6`)
       .then(res => {
         setBlogs(res.data.results || res.data);
         setCount(res.data.count || 0);
@@ -295,6 +264,8 @@ function ExplorePage() {
       .finally(() => setLoading(false));
   }, [page]);
 
+  const totalPages = Math.ceil(count / 6);
+
   return (
     <div className="container">
       <h1>Explore Blogs</h1>
@@ -304,7 +275,7 @@ function ExplorePage() {
             <div className="card" key={blog.id}>
               <div>
                 <div className="card-title">{blog.title}</div>
-                <div className="card-meta">by {blog.author} · {new Date(blog.created_at).toLocaleDateString()}</div>
+                <div className="card-meta">by {blog.author.split('@')[0]} · {new Date(blog.created_at).toLocaleDateString()}</div>
                 <div className="card-content">{blog.content.slice(0, 120)}{blog.content.length > 120 ? '...' : ''}</div>
               </div>
               <div className="card-footer">
@@ -316,20 +287,22 @@ function ExplorePage() {
         </div>
       )}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '1em', marginTop: '2em' }}>
-        <button className="button" onClick={() => setPage(page - 1)} disabled={!previous || page === 1}>Previous</button>
-        <span style={{ alignSelf: 'center' }}>Page {page}</span>
-        <button className="button" onClick={() => setPage(page + 1)} disabled={!next}>Next</button>
+        <button className="button" onClick={() => setPage(page - 1)} disabled={page === 1}>Previous</button>
+        <span style={{ alignSelf: 'center' }}>Page {page} of {totalPages}</span>
+        <button className="button" onClick={() => setPage(page + 1)} disabled={page === totalPages || !next}>Next</button>
       </div>
     </div>
   );
 }
 
+// --- Write Page: Create a new blog ---
 function WritePage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const showToast = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -342,12 +315,13 @@ function WritePage() {
         { title, content },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Blog published!");
+      showToast('Blog published!', 'success');
       navigate("/explore");
     } catch (err) {
       setError(
         err.response?.data?.detail || JSON.stringify(err.response?.data) || "Unknown error"
       );
+      showToast('Failed to publish blog.', 'error');
     } finally {
       setLoading(false);
     }
@@ -385,6 +359,7 @@ function WritePage() {
   );
 }
 
+// --- Blog Detail Page ---
 function BlogDetailPage() {
   const { id } = useParams();
   const [blog, setBlog] = useState(null);
@@ -407,18 +382,20 @@ function BlogDetailPage() {
     <div className="container blog-detail">
       <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5em' }}>{blog.title}</h1>
       <div style={{ color: '#888', marginBottom: '2em' }}>
-        by <b>{blog.author}</b> · {new Date(blog.created_at).toLocaleDateString()}
+        by <b>{blog.author.split('@')[0]}</b> · {new Date(blog.created_at).toLocaleDateString()}
       </div>
       <div style={{ fontSize: '1.2em', lineHeight: 1.7, color: '#222', whiteSpace: 'pre-line' }}>{blog.content}</div>
     </div>
   );
 }
 
+// --- My Blogs Page ---
 function MyBlogsPage() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const showToast = useToast();
 
   useEffect(() => {
     const token = localStorage.getItem('access');
@@ -437,8 +414,9 @@ function MyBlogsPage() {
     try {
       await api.delete(`/api/blogs/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
       setBlogs(blogs.filter(b => b.id !== id));
+      showToast('Blog deleted!', 'success');
     } catch {
-      alert('Failed to delete blog.');
+      showToast('Failed to delete blog.', 'error');
     }
   };
 
@@ -455,9 +433,9 @@ function MyBlogsPage() {
                 <div className="card-content">{blog.content.slice(0, 120)}{blog.content.length > 120 ? '...' : ''}</div>
               </div>
               <div className="card-footer">
-                <button className="button" style={{padding: '0.5em 1.2em', fontSize: '0.95em', background:'#1a8917'}} onClick={() => navigate(`/blog/${blog.id}`)}>View</button>
-                <button className="button" style={{padding: '0.5em 1.2em', fontSize: '0.95em', background:'#eab308', color:'#222'}} onClick={() => navigate(`/edit-blog/${blog.id}`)}>Edit</button>
-                <button className="button" style={{padding: '0.5em 1.2em', fontSize: '0.95em', background:'#b91c1c'}} onClick={() => handleDelete(blog.id)}>Delete</button>
+                <button className="button button-view" onClick={() => navigate(`/blog/${blog.id}`)}>View</button>
+                <button className="button button-edit" onClick={() => navigate(`/edit-blog/${blog.id}`)}>Edit</button>
+                <button className="button button-delete" onClick={() => handleDelete(blog.id)}>Delete</button>
               </div>
             </div>
           ))}
@@ -467,6 +445,7 @@ function MyBlogsPage() {
   );
 }
 
+// --- Edit Blog Page ---
 function EditBlogPage() {
   const { id } = useParams();
   const [title, setTitle] = useState("");
@@ -536,6 +515,62 @@ function EditBlogPage() {
       </form>
     </div>
   );
+}
+
+// --- Terms of Use Page ---
+function TermsOfUsePage() {
+  return (
+    <div className="container" style={{ maxWidth: 800, margin: '0 auto', padding: '2em' }}>
+      <h1 style={{ color: '#967969', marginBottom: '1em' }}>Terms of Use</h1>
+      <ol style={{ color: '#444', fontSize: '1.1em', lineHeight: 1.7 }}>
+        <li><b>Content Ownership:</b> You retain ownership of the content you create and publish. By posting, you grant BlogVerse a license to display and distribute your content on our platform.</li>
+        <li><b>Respectful Conduct:</b> Do not post content that is hateful, harassing, defamatory, or otherwise inappropriate. Treat all users with respect.</li>
+        <li><b>No Plagiarism:</b> Only publish content you have created or have the right to share. Plagiarism and copyright infringement are strictly prohibited.</li>
+        <li><b>Accuracy:</b> Ensure your posts are accurate to the best of your knowledge. Do not intentionally spread misinformation.</li>
+        <li><b>Prohibited Content:</b> Do not post illegal, obscene, or harmful material, including but not limited to spam, malware, or explicit content.</li>
+        <li><b>Account Security:</b> You are responsible for maintaining the security of your account. Do not share your password with others.</li>
+        <li><b>Termination:</b> BlogVerse reserves the right to remove content or terminate accounts that violate these terms or our community guidelines.</li>
+        <li><b>Changes to Terms:</b> BlogVerse may update these terms at any time. Continued use of the platform constitutes acceptance of the updated terms.</li>
+      </ol>
+    </div>
+  );
+}
+
+// --- Main App Component ---
+function App() {
+  const [userInitial, setUserInitial] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    // On mount, check if token exists
+    const token = localStorage.getItem('access');
+    const initial = localStorage.getItem('userInitial');
+    if (token && initial) setUserInitial(initial);
+  }, []);
+
+  return (
+    <ToastProvider>
+      <Router>
+        <Navbar userInitial={userInitial} setUserInitial={setUserInitial} dropdownOpen={dropdownOpen} setDropdownOpen={setDropdownOpen} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/explore" element={<ExplorePage />} />
+          {userInitial && <Route path="/write" element={<WritePage />} />}
+          <Route path="/blog/:id" element={<BlogDetailPage />} />
+          {userInitial && <Route path="/my-blogs" element={<MyBlogsPage />} />}
+          {userInitial && <Route path="/edit-blog/:id" element={<EditBlogPage />} />}
+          <Route path="/login" element={<LoginPage setUserInitial={setUserInitial} />} />
+          <Route path="/get-started" element={<GetStartedPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/terms-of-use" element={<TermsOfUsePage />} />
+        </Routes>
+      </Router>
+    </ToastProvider>
+  );
+}
+
+function Dashboard() {
+  return <MyBlogsPage />;
 }
 
 export default App;
