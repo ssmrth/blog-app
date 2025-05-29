@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate, useParams } 
 import axios from 'axios';
 import './index.css';
 import { ToastProvider, useToast } from './components/ToastContext';
+import ConfirmDialog from './components/ConfirmDialog';
 
 // Axios instance for API calls
 const api = axios.create({ baseURL: 'http://localhost:8000' });
@@ -48,6 +49,7 @@ api.interceptors.response.use(
 // --- Navbar Component ---
 function Navbar({ userInitial, setUserInitial, dropdownOpen, setDropdownOpen }) {
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Logout handler
   const handleLogout = () => {
@@ -68,10 +70,35 @@ function Navbar({ userInitial, setUserInitial, dropdownOpen, setDropdownOpen }) 
     return () => document.removeEventListener('mousedown', handleClick);
   }, [dropdownOpen, setDropdownOpen]);
 
+  // Close mobile menu on navigation
+  useEffect(() => {
+    const closeMenu = () => setMobileMenuOpen(false);
+    window.addEventListener('resize', closeMenu);
+    return () => window.removeEventListener('resize', closeMenu);
+  }, []);
+
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-logo" style={{ textDecoration: 'none', cursor: 'pointer' }}>BlogVerse</Link>
-      <div className="navbar-links">
+      {/* Hamburger icon for mobile */}
+      <button
+        className="hamburger"
+        aria-label="Open menu"
+        style={{
+          display: 'none',
+          background: 'none',
+          border: 'none',
+          fontSize: 28,
+          marginLeft: 'auto',
+          cursor: 'pointer',
+          color: '#967969',
+        }}
+        onClick={() => setMobileMenuOpen((v) => !v)}
+      >
+        <span style={{ fontWeight: 900 }}>&#9776;</span>
+      </button>
+      {/* Desktop links */}
+      <div className="navbar-links desktop-links">
         <Link to="/explore">Explore</Link>
         {userInitial && <Link to="/write">Write</Link>}
         {userInitial ? (
@@ -98,6 +125,24 @@ function Navbar({ userInitial, setUserInitial, dropdownOpen, setDropdownOpen }) 
           </>
         )}
       </div>
+      {/* Mobile menu */}
+      {mobileMenuOpen && (
+        <div className="navbar-links mobile-menu" style={{ width: '100%' }}>
+          <Link to="/explore" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
+          {userInitial && <Link to="/write" onClick={() => setMobileMenuOpen(false)}>Write</Link>}
+          {userInitial ? (
+            <>
+              <button onClick={() => { setDropdownOpen(false); setMobileMenuOpen(false); navigate('/my-blogs'); }} style={{ width: '100%', background: 'none', color: '#222', border: 'none', fontWeight: 600, cursor: 'pointer', padding: '0.8em 1em', textAlign: 'left' }}>My Blogs</button>
+              <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} style={{ width: '100%', background: 'none', color: '#222', border: 'none', fontWeight: 600, cursor: 'pointer', padding: '0.8em 1em', textAlign: 'left' }}>Logout</button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Sign in</Link>
+              <Link to="/get-started" className="button" onClick={() => setMobileMenuOpen(false)}>Get started</Link>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 }
@@ -396,6 +441,9 @@ function MyBlogsPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const showToast = useToast();
+  // State for confirmation dialog
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [blogToDelete, setBlogToDelete] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('access');
@@ -408,16 +456,31 @@ function MyBlogsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this blog?')) return;
+  // Open confirm dialog
+  const handleDeleteClick = (id) => {
+    setBlogToDelete(id);
+    setConfirmOpen(true);
+  };
+
+  // Confirm deletion
+  const handleConfirmDelete = async () => {
+    setConfirmOpen(false);
+    if (!blogToDelete) return;
     const token = localStorage.getItem('access');
     try {
-      await api.delete(`/api/blogs/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
-      setBlogs(blogs.filter(b => b.id !== id));
+      await api.delete(`/api/blogs/${blogToDelete}/`, { headers: { Authorization: `Bearer ${token}` } });
+      setBlogs(blogs.filter(b => b.id !== blogToDelete));
       showToast('Blog deleted!', 'success');
     } catch {
       showToast('Failed to delete blog.', 'error');
     }
+    setBlogToDelete(null);
+  };
+
+  // Cancel deletion
+  const handleCancelDelete = () => {
+    setConfirmOpen(false);
+    setBlogToDelete(null);
   };
 
   return (
@@ -435,12 +498,19 @@ function MyBlogsPage() {
               <div className="card-footer">
                 <button className="button button-view" onClick={() => navigate(`/blog/${blog.id}`)}>View</button>
                 <button className="button button-edit" onClick={() => navigate(`/edit-blog/${blog.id}`)}>Edit</button>
-                <button className="button button-delete" onClick={() => handleDelete(blog.id)}>Delete</button>
+                <button className="button button-delete" onClick={() => handleDeleteClick(blog.id)}>Delete</button>
               </div>
             </div>
           ))}
         </div>
       )}
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={confirmOpen}
+        message="Are you sure you want to delete this blog?"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </div>
   );
 }
