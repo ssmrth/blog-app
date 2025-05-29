@@ -524,6 +524,7 @@ function EditBlogPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const showToast = useToast();
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -543,7 +544,7 @@ function EditBlogPage() {
     const token = localStorage.getItem("access");
     try {
       await api.put(`/api/blogs/${id}/`, { title, content }, { headers: { Authorization: `Bearer ${token}` } });
-      alert("Blog updated!");
+      showToast('Blog updated!', 'success');
       navigate(`/blog/${id}`);
     } catch (err) {
       setError(err.response?.data?.detail || JSON.stringify(err.response?.data) || "Unknown error");
