@@ -243,6 +243,9 @@ function LoginPage({ setUserInitial }) {
         <div className="terms">
           By clicking "Sign in" you agree to our <Link to="/terms-of-use">Terms of Use</Link>.
         </div>
+        <div style={{ textAlign: 'center', marginTop: '1.5em' }}>
+          New to BlogVerse? <Link to="/get-started" style={{ color: '#967969', fontWeight: 'bold' }}>Create account</Link>.
+        </div>
       </form>
     </div>
   );
